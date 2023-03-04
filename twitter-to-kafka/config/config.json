@@ -1,0 +1,6 @@
+{
+    "twitterConfig" : {
+        "API_KEY":"Hello",
+        "SECRET": "World"
+    }
+}
