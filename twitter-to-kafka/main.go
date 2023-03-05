@@ -1,24 +1,22 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"twitter-to-kafka/packages/handlers"
 	// twitterstream "github.com/fallenstedt/twitter-stream"
 )
 
 func main() {
 
-	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		log.Println("HELLO")
+	l := log.New(os.Stdout, "data-api", log.LstdFlags)
+	newHandler := handlers.NewData(l)
 
-		d, _ := ioutil.ReadAll(r.Body)
+	sm := http.NewServeMux()
+	sm.Handle("/", newHandler)
 
-		log.Printf("Data %s\n", d)
-
-	})
-
-	http.ListenAndServe(":9090", nil)
+	http.ListenAndServe(":9090", sm)
 
 	// config, err := config.LoadConfig()
 	// if err != nil {
