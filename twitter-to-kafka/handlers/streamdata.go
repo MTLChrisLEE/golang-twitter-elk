@@ -1,9 +1,11 @@
 package handlers
 
 import (
-	"io/ioutil"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"twitter-to-kafka/packages/model"
 )
 
 type Data struct {
@@ -20,12 +22,26 @@ func (h *Data) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	d, err := ioutil.ReadAll(r.Body)
+	inputData := model.InputData{}
 
+	//Deserializing to inputData
+	err := json.NewDecoder(r.Body).Decode(&inputData)
 	if err != nil {
-		http.Error(rw, "Oops", http.StatusBadRequest)
+		h.l.Println("[ERROR] Deserializing Input Data", err)
+		http.Error(rw, "Error reading input data", http.StatusBadRequest)
 		return
 	}
 
-	h.l.Printf("Data %s\n", d)
+	err = inputData.Validate()
+	if err != nil {
+		h.l.Println("[ERROR] Validating Input Data", err)
+		http.Error(
+			rw,
+			fmt.Sprintf("Error reading input data"),
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	h.l.Printf("Data %s\n", inputData)
 }
